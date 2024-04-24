@@ -220,7 +220,7 @@ F4_RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                                          mark_thickness, frame_info);
             break;
         }
-    }
+	}
     
     // NOTE(rjf): Brace annotations
     {

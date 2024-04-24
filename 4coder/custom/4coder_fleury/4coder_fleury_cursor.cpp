@@ -272,7 +272,7 @@ F4_Cursor_RenderEmacsStyle(Application_Links *app, View_ID view_id, b32 is_activ
         }
     }
     
-    draw_set_clip(app, clip);
+	draw_set_clip(app, clip);
 }
 
 internal b32

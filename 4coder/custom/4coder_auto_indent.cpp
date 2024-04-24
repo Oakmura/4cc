@@ -64,7 +64,7 @@ set_line_indents(Application_Links *app, Arena *arena, Buffer_ID buffer, Range_i
 internal Token*
 find_anchor_token(Application_Links *app, Buffer_ID buffer, Token_Array *tokens, i64 invalid_line){
     ProfileScope(app, "find anchor token");
-    Token *result = 0;
+    ;Token *result = 0;
     
     if (tokens != 0 && tokens->tokens != 0){
         result = tokens->tokens;

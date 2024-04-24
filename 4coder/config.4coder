@@ -29,7 +29,7 @@ enable_undo_fade_out = true;
 // the cursor and mark's roundness as a percentage of their width
 // (At 50 the left and right corners will be so round they form a semi-circle,
 //  hence 50 is the max)
-cursor_roundness = 45;
+cursor_roundness = 20;
 
 // mark_thickness is a pixel count value setting the
 // thickness of the mark wire box in original mode
@@ -40,7 +40,7 @@ mark_thickness = 2;
 lister_roundness = 20;
 
 // Code Wrapping
-treat_as_code = ".cpp.c.hpp.h.cc.cs.java.rs.glsl.m.mm";
+treat_as_code = ".cpp.c.hpp.h.cc.cs.java.rs.glsl.m.mm.hlsl.4coder";
 enable_virtual_whitespace = true;
 virtual_whitespace_regular_indent = 4;
 enable_code_wrapping = true;
@@ -56,15 +56,17 @@ automatically_save_changes_on_build = true;
 automatically_load_project = false;
 
 // Indentation
-indent_with_tabs = false;
+indent_with_tabs = true;
 indent_width = 4;
 default_tab_width = 4;
 
 // Theme
 default_theme_name = "theme-casey";
+highlight_line_at_cursor = true;
 
 // Font
-default_font_name = "liberation-mono.ttf";
+default_font_name = "JetBrainsMono-Medium.ttf";
+// default_font_name = "liberation-mono.ttf";
 default_font_size = 16;
 default_font_hinting = false;
 
@@ -74,7 +76,7 @@ default_font_hinting = false;
 default_font_aa_mode = "8bit";
 
 // User
-user_name = "not-set";
+user_name = "Oakmura";
 
 // Keyboard AltGr setting
 lalt_lctrl_is_altgr = false;
