@@ -87,6 +87,7 @@ function void
 DoTheCursorInterpolation(Application_Links *app, Frame_Info frame_info,
                          Rect_f32 *rect, Rect_f32 *last_rect, Rect_f32 target)
 {
+	/*
     *last_rect = *rect;
     
     float x_change = target.x0 - rect->x0;
@@ -131,7 +132,51 @@ DoTheCursorInterpolation(Application_Links *app, Frame_Info frame_info,
             rect->y1 = last_rect->y1;
         }
     }
+*/
+	
+	*last_rect = *rect;
     
+    float x_change = target.x0 - rect->x0;
+    float y_change = target.y0 - rect->y0;
+    
+    b32 should_animate_cursor = !global_battery_saver && !def_get_config_b32(vars_save_string_lit("f4_disable_cursor_trails"));
+    if(should_animate_cursor)
+    {
+        if(fabs(x_change) > 1.f || fabs(y_change) > 1.f)
+        {
+            animate_in_n_milliseconds(app, 0);
+        }
+    }
+    else
+    {
+        *rect = *last_rect = target;
+    }
+    
+    if(should_animate_cursor)
+    {
+        float mul = 1.0f - powf(1e-9f, frame_info.animation_dt);
+        rect->x0 += (target.x0 - rect->x0) * mul;
+        rect->y0 += (target.y0 - rect->y0) * mul;
+        rect->x1 += (target.x1 - rect->x1) * mul;
+        rect->y1 += (target.y1 - rect->y1) * mul;
+    }
+    
+    if(target.y0 > last_rect->y0)
+    {
+        if(rect->y0 < last_rect->y0)
+        {
+            rect->y0 = last_rect->y0;
+        }
+    }
+    else
+    {
+        if(rect->y1 > last_rect->y1)
+        {
+            rect->y1 = last_rect->y1;
+        }
+    }
+	
+	
 }
 
 function void

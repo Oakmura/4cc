@@ -1,5 +1,104 @@
 //~ NOTE(rjf): Buffer Render
 
+const f32 ANIMATION_CURSOR_GROW1 = 55.0f;
+const f32 ANIMATION_CURSOR_GROW2 = 45.0f;
+const f32 ANIMATION_GROW_FACTOR = 5.0f;
+global f32 global_cursor_limit = 0.0f;
+global u32 global_cursor_reached = 0;
+global f32 global_cursor_growth_speed = 0.0f;
+
+static void
+st_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
+				 Buffer_ID buffer, Text_Layout_ID text_layout_id,
+				 f32 roundness, f32 outline_thickness, Frame_Info frame_info)
+{
+    b32 has_highlight_range = draw_highlight_range(app, view_id, buffer, text_layout_id, roundness);
+    
+    if (!has_highlight_range) {
+        i64 cursor_pos = view_get_cursor_pos(app, view_id);
+        i64 mark_pos = view_get_mark_pos(app, view_id);
+        
+        if (is_active_view)
+        {
+            // NOTE(rjf): Draw cursor.
+            {
+                static Rect_f32 rect = {0};
+                Rect_f32 target_rect = text_layout_character_on_screen(app, text_layout_id, cursor_pos);
+                Rect_f32 last_rect = rect;
+                
+                // NOTE(Skytrias): counter
+				f32 size = 10.0f;
+				if (!global_cursor_reached) {
+					if (global_cursor_limit < 1.0f) {
+						global_cursor_growth_speed = 4.0f;
+						global_cursor_limit += frame_info.animation_dt * global_cursor_growth_speed;
+					} else {
+						global_cursor_reached = 1;
+					}
+				} else {
+					if (global_cursor_limit > 0) {
+						global_cursor_growth_speed = 2.5f;
+						global_cursor_limit -= frame_info.animation_dt * global_cursor_growth_speed;
+					} else {
+						global_cursor_reached = 0;
+					}
+				}
+				
+                float x_change = (target_rect.x0 - rect.x0);
+                float y_change = (target_rect.y0 - rect.y0);
+                float cursor_size_x = (target_rect.x1 - target_rect.x0);
+                float cursor_size_y = (target_rect.y1 - target_rect.y0) * (1 + fabsf(y_change) / 60.f);
+				
+				animate_in_n_milliseconds(app, 0);
+                
+                rect.x0 += x_change * frame_info.animation_dt * 14.f;
+                rect.y0 += y_change * frame_info.animation_dt * 14.f;
+                rect.x1 = (rect.x0 + cursor_size_x);
+                rect.y1 = (rect.y0 + cursor_size_y);
+                
+				f32 growth = global_cursor_limit * size / 6.0f;
+				rect.x0 -= growth / 8.0f;
+				rect.x1 += growth * 1.5f;
+				
+                if(target_rect.y0 > last_rect.y0) {
+                    if(rect.y0 < last_rect.y0) {
+                        rect.y0 = last_rect.y0;
+                    }
+                }
+                else {
+                    if(rect.y1 > last_rect.y1) {
+                        rect.y1 = last_rect.y1;
+                    }
+                }
+                
+                FColor cursor_color = fcolor_id(defcolor_cursor);
+                
+                if(global_keyboard_macro_is_recording) {
+                    cursor_color = fcolor_argb(0xffde40df);
+                }
+                
+                // NOTE(rjf): Draw main cursor.
+				draw_rectangle(app, rect, roundness, fcolor_resolve(cursor_color));
+            }
+            
+            paint_text_color_pos(app, text_layout_id, cursor_pos,
+                                 fcolor_id(defcolor_at_cursor));
+            draw_character_wire_frame(app, text_layout_id, mark_pos,
+                                      roundness, outline_thickness,
+                                      fcolor_id(defcolor_mark));
+        }
+        else
+        {
+            draw_character_wire_frame(app, text_layout_id, mark_pos,
+                                      roundness, outline_thickness,
+                                      fcolor_id(defcolor_mark));
+            draw_character_wire_frame(app, text_layout_id, cursor_pos,
+                                      roundness, outline_thickness,
+                                      fcolor_id(defcolor_cursor));
+        }
+    }
+}
+
 function void
 F4_RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                 Buffer_ID buffer, Text_Layout_ID text_layout_id,
@@ -211,7 +310,11 @@ F4_RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     {
         case FCoderMode_Original:
         {
-            F4_Cursor_RenderEmacsStyle(app, view_id, is_active_view, buffer, text_layout_id, cursor_roundness, mark_thickness, frame_info);
+            // F4_Cursor_RenderEmacsStyle(app, view_id, is_active_view, buffer, text_layout_id, cursor_roundness, mark_thickness, frame_info);
+			
+            // draw_original_4coder_style_cursor_mark_highlight(app, view_id, is_active_view, buffer, text_layout_id, cursor_roundness, mark_thickness);
+			
+			st_render_cursor(app, view_id, is_active_view, buffer, text_layout_id, cursor_roundness, mark_thickness, frame_info);
         }break;
         
         case FCoderMode_NotepadLike:
